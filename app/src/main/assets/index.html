@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="bn">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>TradeGuard</title>
+<style>
+:root{--bg:#090b14;--card:#121625;--text:#fff;--muted:#9299b4;--line:#252b3e;--accent:#8b5cf6;--danger:#ef4444;--ok:#22c55e}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(180deg,#080a12,#0d1020);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Noto Sans Bengali,sans-serif}button,input{font:inherit}.app{max-width:720px;margin:auto;padding:18px 16px 30px}.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}.logo{font-size:28px;font-weight:800}.mini{color:var(--muted);font-size:13px;line-height:1.55}.dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--ok);margin-right:7px}.card{background:rgba(18,22,37,.96);border:1px solid var(--line);border-radius:18px;padding:17px;margin:12px 0;box-shadow:0 10px 35px rgba(0,0,0,.18)}.status{display:flex;justify-content:space-between;align-items:center}.badge{padding:7px 10px;border-radius:999px;background:#17301f;color:#8ef0ad;font-size:12px;font-weight:700}.badge.lock{background:#35191d;color:#ff9ba2}.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-top:15px}.stat{background:#0d111d;border:1px solid var(--line);border-radius:12px;padding:11px}.label{color:var(--muted);font-size:11px}.value{font-size:22px;font-weight:800;margin-top:4px}.row{display:grid;grid-template-columns:1fr 1fr;gap:9px}.row3{grid-template-columns:1fr 1fr 1fr}.btn{width:100%;border:0;border-radius:12px;padding:12px 10px;background:var(--accent);color:#fff;font-weight:750;cursor:pointer}.btn.secondary{background:#20263a}.btn.danger{background:#5c2026}.field{margin-top:12px}.field label{display:block;color:var(--muted);font-size:12px;margin-bottom:6px}.field input{width:100%;background:#0b0f1b;color:#fff;border:1px solid var(--line);border-radius:10px;padding:11px}.roi{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}.roi input{min-width:0}.progress{height:8px;background:#080b14;border-radius:999px;overflow:hidden;margin-top:12px}.bar{height:100%;width:0;background:var(--accent);transition:.2s}.notice{color:#ffcc80;font-size:12px;line-height:1.55}.lock{position:fixed;inset:0;background:rgba(5,7,13,.82);backdrop-filter:blur(5px);display:none;align-items:center;justify-content:center;padding:24px;z-index:50}.lock.show{display:flex}.lockbox{width:min(520px,100%);background:#121625;border:1px solid #3a4054;border-radius:22px;padding:26px;text-align:center}.lockicon{font-size:44px}.timer{font-size:40px;font-weight:900;margin:15px 0}.smallbtn{border:0;background:transparent;color:var(--muted);text-decoration:underline;margin-top:12px}
+@media(max-width:560px){.grid{grid-template-columns:repeat(2,1fr)}.roi{grid-template-columns:repeat(2,1fr)}.row3{grid-template-columns:1fr}.logo{font-size:24px}.value{font-size:19px}}
+</style></head>
+<body>
+<div class="app">
+ <div class="top"><div><div class="logo">◈ TradeGuard</div><div class="mini">Quotex Risk Protection — HTML UI + Android Bridge</div></div><div><span class="dot"></span><span id="monitor">Monitor</span></div></div>
+ <div class="card">
+  <div class="status"><div><b>Quotex Monitor</b><div class="mini">স্ক্রিনে দেখা ট্রেড রেজাল্ট পর্যবেক্ষণ</div></div><div id="badge" class="badge">ACTIVE</div></div>
+  <div class="grid">
+   <div class="stat"><div class="label">মোট ট্রেড</div><div id="total" class="value">0</div></div>
+   <div class="stat"><div class="label">Profit</div><div id="wins" class="value">0</div></div>
+   <div class="stat"><div class="label">Loss</div><div id="losses" class="value">0</div></div>
+   <div class="stat"><div class="label">পরপর Loss</div><div id="streak" class="value">0 / 4</div></div>
+  </div>
+  <div class="mini" style="margin-top:14px">৪টি ধারাবাহিক Loss হলে নির্ধারিত Risk Lock চালু হবে। Profit এলে streak 0 হবে।</div>
+  <div class="progress"><div id="bar" class="bar"></div></div>
+ </div>
+
+ <div class="card">
+  <b>সেটআপ</b>
+  <div class="row" style="margin-top:12px">
+   <button class="btn" onclick="bridge('enableAccessibility')">1. Enable Accessibility</button>
+   <button class="btn" onclick="bridge('startCapture')">2. Start Screen Sensor</button>
+  </div>
+  <div class="row" style="margin-top:9px">
+   <button class="btn secondary" onclick="bridge('testLock')">TEST: Lock Quotex Now</button>
+   <button class="btn secondary" onclick="bridge('reset')">Reset Loss Streak / Unlock</button>
+  </div>
+ </div>
+
+ <div class="card">
+  <b>Protection settings</b>
+  <div class="field"><label>Loss limit</label><input id="limit" type="number" min="1" value="4"></div>
+  <div class="field"><label>Lock duration (hours)</label><input id="hours" type="number" min="1" value="12"></div>
+  <div class="field"><label><input id="zero" type="checkbox" checked style="width:auto;margin-right:8px">Treat 0.00 as LOSS</label></div>
+  <div class="field"><label>Result ROI (% of screen) — RESULT (P/L) area</label><div class="roi"><input id="roiL" type="number" step="0.1" value="45" placeholder="L"><input id="roiT" type="number" step="0.1" value="35" placeholder="T"><input id="roiR" type="number" step="0.1" value="100" placeholder="R"><input id="roiB" type="number" step="0.1" value="75" placeholder="B"></div></div>
+  <button class="btn" style="margin-top:12px" onclick="saveSettings()">Save Protection Settings</button>
+ </div>
+
+ <div class="card">
+  <b>বর্তমান স্ট্যাটাস</b>
+  <div id="stats" class="mini" style="margin-top:8px">Trades: 0 | Profit: 0 | Loss: 0 | Streak: 0 / 4</div>
+ </div>
+
+ <div class="card"><div class="notice">Important: TradeGuard Quotex server/API-তে connect করে না এবং trade place/Buy/Sell automation করে না। এই test build visible screen locally observe করে এবং threshold হলে protection overlay চালায়।</div></div>
+ <div class="mini" style="text-align:center;padding:8px">TradeGuard • Risk-control test build</div>
+</div>
+
+<div id="lock" class="lock"><div class="lockbox"><div class="lockicon">🔒</div><h1>TRADING LOCKED</h1><div class="mini">নির্ধারিত Loss limit পূরণ হয়েছে। Quotex খোলা থাকবে, কিন্তু TradeGuard protection active থাকবে।</div><div id="timer" class="timer">00:00:00</div><div class="mini">Lock শেষ হলে স্বয়ংক্রিয়ভাবে বন্ধ হবে।</div></div></div>
+
+<script>
+const isNative=()=>typeof window.TradeGuard!=='undefined';
+function bridge(name){if(isNative()){try{window.TradeGuard[name]()}catch(e){console.error(e)}}else{alert('এই HTML browser-এ চলছে। আসল Accessibility/Screen Sensor চালাতে TradeGuard Android build ব্যবহার করুন।')}}
+function saveSettings(){
+ const a=[+limit.value||4,+hours.value||12,zero.checked,+roiL.value||45,+roiT.value||35,+roiR.value||100,+roiB.value||75];
+ if(isNative()) window.TradeGuard.saveSettings(...a); else {localStorage.tgSettings=JSON.stringify(a); alert('Browser preview settings saved.')}
+}
+function nativeState(s){if(typeof s==='string')s=JSON.parse(s);render(s)}
+function render(s){
+ total.textContent=s.total;wins.textContent=s.wins;losses.textContent=s.losses;streak.textContent=`${s.streak} / ${s.limit}`;stats.textContent=`Trades: ${s.total} | Profit: ${s.wins} | Loss: ${s.losses} | Streak: ${s.streak} / ${s.limit}`;bar.style.width=Math.min(100,(s.streak/s.limit)*100)+'%';badge.textContent=s.locked?'LOCKED':'ACTIVE';badge.classList.toggle('lock',s.locked);limit.value=s.limit;hours.value=s.hours;zero.checked=!!s.zeroIsLoss;roiL.value=s.roiL;roiT.value=s.roiT;roiR.value=s.roiR;roiB.value=s.roiB;lock.classList.toggle('show',!!s.locked);updateTimer(s.lockUntil||0)}
+function updateTimer(until){const tick=()=>{if(!until){timer.textContent='00:00:00';return}let d=Math.max(0,until-Date.now());let sec=Math.floor(d/1000);let h=Math.floor(sec/3600);sec%=3600;let m=Math.floor(sec/60);sec%=60;timer.textContent=[h,m,sec].map(x=>String(x).padStart(2,'0')).join(':');if(d>0)requestAnimationFrame(tick);else{lock.classList.remove('show');if(isNative())setTimeout(()=>nativeState(TradeGuard.getState()),200)}};tick()}
+function load(){if(isNative())render(JSON.parse(TradeGuard.getState()));else{const a=JSON.parse(localStorage.tgSettings||'[4,12,true,45,35,100,75]');render({total:0,wins:0,losses:0,streak:0,limit:a[0],hours:a[1],zeroIsLoss:a[2],roiL:a[3],roiT:a[4],roiR:a[5],roiB:a[6],locked:false,lockUntil:0})}}
+load();setInterval(()=>{if(isNative())nativeState(TradeGuard.getState())},1000);
+</script>
+</body></html>
